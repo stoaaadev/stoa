@@ -1,8 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="assets/stoa.jpg" alt="stoa" width="120">
-  <br>
-  stoa
+  <img src="assets/stoa.png" alt="stoa" width="160">
   <br>
 </h1>
 
@@ -14,6 +12,7 @@
 <p align="center">
   <a href="https://github.com/stoaaadev/stoa/stargazers"><img src="https://img.shields.io/github/stars/stoaaadev/stoa?style=flat-square" alt="Stars"></a>
   <a href="https://github.com/stoaaadev/stoa/network/members"><img src="https://img.shields.io/github/forks/stoaaadev/stoa?style=flat-square" alt="Forks"></a>
+  <a href="https://x.com/stoaframework"><img src="https://img.shields.io/badge/follow-%40stoaframework-black?style=flat-square&logo=x&logoColor=white" alt="X (Twitter)"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
   <a href="https://solana.com"><img src="https://img.shields.io/badge/chain-Solana-9945FF?style=flat-square&logo=solana&logoColor=white" alt="Solana"></a>
 </p>

@@ -1,5 +1,6 @@
 // stoa/src/preflight.ts — Pre-execution checks before agent skill execution
 
+import { execSync } from "child_process";
 import { getCronState, getPositions, getPortfolioState } from "./memory.js";
 import { getHealthReport } from "./health.js";
 import { loadConfig } from "./config.js";
@@ -17,6 +18,28 @@ export interface PreflightResult {
 export async function runPreflight(agent: string, skill: string): Promise<PreflightResult> {
   const checks: { name: string; passed: boolean; detail?: string }[] = [];
   let blocking_reason: string | undefined;
+
+  // 0. Is the LLM runtime available?
+  let claudeAvailable = false;
+  try {
+    execSync("which claude 2>/dev/null || command -v claude 2>/dev/null", {
+      encoding: "utf-8",
+      timeout: 5000,
+    });
+    claudeAvailable = true;
+  } catch {
+    // Claude CLI not installed — check for API keys as fallback
+    claudeAvailable = !!(process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY);
+  }
+  const llmAvailable = claudeAvailable || !!process.env.ANTHROPIC_API_KEY;
+  checks.push({
+    name: "llm_runtime",
+    passed: llmAvailable,
+    detail: llmAvailable ? undefined : "No LLM runtime available (claude CLI not found, no API keys set)",
+  });
+  if (!llmAvailable) {
+    blocking_reason = "No LLM runtime: install claude CLI or set ANTHROPIC_API_KEY/OPENAI_API_KEY/GEMINI_API_KEY";
+  }
 
   // 1. Is the swarm halted? (only guardian can run during halt)
   const cronState = getCronState();

@@ -1,0 +1,11 @@
+[
+  {
+    "timestamp": "2026-05-18T10:05:52.008Z",
+    "agent": "scout",
+    "skill": "scan-tokens",
+    "score": 1,
+    "duration_ms": 5,
+    "error": "/bin/sh: 1: claude: not found\n",
+    "output_size": 30
+  }
+]

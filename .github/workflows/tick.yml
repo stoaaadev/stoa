@@ -1,5 +1,6 @@
 # .github/workflows/tick.yml — Cron Dispatcher
 # Runs every 5 minutes. Checks which agents are due and dispatches them.
+# Note: Inbound message polling runs on its own schedule via messages.yml.
 
 name: tick
 

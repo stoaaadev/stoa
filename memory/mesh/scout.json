@@ -4,13 +4,13 @@
     "to": "scout",
     "type": "feedback",
     "data": {
-      "signal_id": "scout-1779102861829-szjl",
+      "signal_id": "scout-1779113567743-45a4",
       "verdict": "accepted",
       "score": 0.85,
       "reason": "Strong volume with organic trader count, confirmed breakout"
     },
-    "id": "analyst-1779102861830-k1vh",
-    "timestamp": "2026-05-18T11:14:21.830Z"
+    "id": "analyst-1779113567744-oh2c",
+    "timestamp": "2026-05-18T14:12:47.744Z"
   },
   {
     "from": "guardian",
@@ -22,10 +22,10 @@
     "type": "halt",
     "data": {
       "reason": "Portfolio drawdown exceeded 15%: currently at -18.5%",
-      "cooldown_until": "2026-05-18T15:14:21.832Z",
+      "cooldown_until": "2026-05-18T18:12:47.747Z",
       "action_required": "reduce_exposure"
     },
-    "id": "guardian-1779102861832-t22p",
-    "timestamp": "2026-05-18T11:14:21.832Z"
+    "id": "guardian-1779113567747-7f9v",
+    "timestamp": "2026-05-18T14:12:47.747Z"
   }
 ]

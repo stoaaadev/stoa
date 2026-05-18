@@ -11,7 +11,8 @@ export interface StoaConfig {
   };
   notifications: {
     telegram?: { enabled: boolean; bot_token: string; chat_id: string };
-    discord?: { enabled: boolean; webhook: string };
+    discord?: { enabled: boolean; webhook: string; bot_token?: string; channel_id?: string };
+    slack?: { enabled: boolean; bot_token?: string; channel_id?: string; webhook?: string };
   };
   agents: Record<string, AgentConfig>;
   mesh: { max_history: number; ttl_hours: number };
@@ -132,4 +133,21 @@ export interface WebhookTrigger {
   on: "webhook";
   event_type: string;
   source?: string;
+}
+
+// --- Inbound messaging types ---
+
+export interface MessageState {
+  telegram_offset?: number;
+  discord_last_ids: Record<string, string>;
+  slack_last_ts: Record<string, string>;
+  processed_hashes: string[];
+}
+
+export interface InboundMessage {
+  source: "telegram" | "discord" | "slack" | "manual";
+  text: string;
+  sender?: string;
+  timestamp: string;
+  message_id?: string;
 }

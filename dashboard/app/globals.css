@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #09090b;
+  --color-surface-raised: #18181b;
+  --color-surface-overlay: #27272a;
+  --color-border-dim: #27272a;
+  --color-border-bright: #3f3f46;
+  --color-accent: #34d399;
+  --color-accent-dim: #065f46;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+/* Pulse animation for status indicators */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Grid background subtle pattern */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(63, 63, 70, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 63, 70, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Glow effect for active elements */
+.glow-emerald {
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.15), 0 0 4px rgba(52, 211, 153, 0.1);
+}
+
+.glow-red {
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.15), 0 0 4px rgba(248, 113, 113, 0.1);
+}
+
+.glow-amber {
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.15), 0 0 4px rgba(251, 191, 36, 0.1);
+}

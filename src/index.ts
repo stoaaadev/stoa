@@ -10,6 +10,7 @@ Usage:
   stoa dispatch          Run the cron dispatcher (check schedules, trigger agents)
   stoa execute <agent> <skill>   Execute a specific agent's skill
   stoa chain <chain-id>  Execute a skill chain/pipeline
+  stoa messages          Show recent inbound messages
   stoa status            Show swarm status
   stoa health            Show skill health reports
   stoa cost              Show token usage and cost summary
@@ -28,6 +29,11 @@ Environment:
   TELEGRAM_BOT_TOKEN     Optional: Telegram notifications
   TELEGRAM_CHAT_ID       Optional: Telegram chat ID
   DISCORD_WEBHOOK_URL    Optional: Discord webhook
+  DISCORD_BOT_TOKEN      Optional: Discord bot token (inbound messages)
+  DISCORD_CHANNEL_ID     Optional: Discord channel ID (inbound messages)
+  SLACK_BOT_TOKEN        Optional: Slack bot token (inbound messages)
+  SLACK_CHANNEL_ID       Optional: Slack channel ID (inbound messages)
+  SLACK_WEBHOOK_URL      Optional: Slack webhook (outbound notifications)
   STOA_LOG_LEVEL         Log level: debug|info|warn|error (default: info)
 
 GitHub Actions:
@@ -106,6 +112,42 @@ async function main() {
         console.log(
           `  [${msg.timestamp}] ${msg.from} -> ${msg.type}: ${JSON.stringify(msg.data).slice(0, 100)}`
         );
+      }
+      break;
+    }
+
+    case "messages": {
+      const { readJSON } = await import("./memory.js");
+      const msgState = readJSON("message-state.json", {
+        telegram_offset: 0,
+        discord_last_ids: {},
+        slack_last_ts: {},
+        processed_hashes: [],
+      });
+
+      console.log("=== stoa inbound messages ===");
+      console.log(`Telegram offset: ${msgState.telegram_offset || 0}`);
+      console.log(`Discord tracked channels: ${Object.keys(msgState.discord_last_ids).length}`);
+      console.log(`Slack tracked channels: ${Object.keys(msgState.slack_last_ts).length}`);
+      console.log(`Processed message hashes: ${msgState.processed_hashes.length}`);
+      console.log("");
+
+      // Show recent message log if available
+      const msgLog = readJSON("message-log.json", [] as Array<{
+        source: string; text: string; sender?: string;
+        timestamp: string; routed_to?: string;
+      }>);
+      const recent = msgLog.slice(-20);
+      if (recent.length > 0) {
+        console.log(`Recent messages (last ${recent.length}):`);
+        for (const msg of recent) {
+          const agent = msg.routed_to ? ` -> ${msg.routed_to}` : "";
+          console.log(
+            `  [${msg.timestamp}] ${msg.source}${msg.sender ? ` (${msg.sender})` : ""}${agent}: ${msg.text.slice(0, 80)}`
+          );
+        }
+      } else {
+        console.log("No messages received yet.");
       }
       break;
     }

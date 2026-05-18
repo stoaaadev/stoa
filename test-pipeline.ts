@@ -37,7 +37,7 @@ async function main() {
   // ─── PHASE 0: Config & Reset ───
   console.log(`${BOLD}[0] Config & Reset${RESET}`);
   const config = loadConfig();
-  assert(Object.keys(config.agents).length === 4, "4 agents loaded from stoa.yml");
+  assert(Object.keys(config.agents).length === 7, "7 agents loaded from stoa.yml");
   assert(config.agents.scout.skills.includes("scan-tokens"), "scout has scan-tokens skill");
   assert(config.agents.executor.schedule === null, "executor is reactive (no schedule)");
   assert(config.agents.guardian.var?.max_drawdown_pct === 15, "guardian drawdown threshold = 15%");

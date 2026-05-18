@@ -7,7 +7,7 @@
     ],
     "type": "execution-report",
     "data": {
-      "signal_id": "analyst-1779102861830-lfn0",
+      "signal_id": "analyst-1779113567744-hi8e",
       "status": "filled",
       "action": "buy",
       "token": "JUP",
@@ -18,7 +18,7 @@
       "tx_signature": "5xG7kJmN2vF8qRtY9pLwE3dA6hB4cU1iO0sZ",
       "error": null
     },
-    "id": "executor-1779102861831-8a01",
-    "timestamp": "2026-05-18T11:14:21.831Z"
+    "id": "executor-1779113567745-bfb0",
+    "timestamp": "2026-05-18T14:12:47.745Z"
   }
 ]

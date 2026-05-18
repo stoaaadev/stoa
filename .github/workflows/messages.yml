@@ -1,0 +1,212 @@
+# .github/workflows/messages.yml — Inbound Message Handler
+# Polls Telegram/Discord/Slack every 5 minutes for user messages.
+# Routes each message to the appropriate agent and processes it via Claude.
+
+name: messages
+run-name: "${{ inputs.message && format('msg ({0}): {1}', inputs.source || 'manual', inputs.message) || 'tick: poll channels' }}"
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message to process'
+        required: false
+        type: string
+      source:
+        description: 'Message source (telegram, discord, slack, manual)'
+        required: false
+        type: string
+      agent:
+        description: 'Override agent routing (scout, analyst, executor, guardian)'
+        required: false
+        type: string
+  repository_dispatch:
+    types: [telegram-message, discord-message, slack-message]
+
+permissions:
+  contents: write
+  actions: write
+
+# Poll/schedule runs serialize. Message runs get unique groups (parallel).
+concurrency:
+  group: ${{ (github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && inputs.message != '')) && format('stoa-msg-{0}', github.run_id) || 'stoa-msg-tick' }}
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.message == '') || (github.event_name == 'repository_dispatch' && github.event.action == 'cron-tick')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Poll channels and dispatch messages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+        run: |
+          # Poll all channels via the messages runtime
+          MESSAGES=$(npx tsx src/messages.ts poll)
+          MSG_COUNT=$(echo "$MESSAGES" | jq 'length')
+          echo "Found $MSG_COUNT new message(s)"
+
+          # Dispatch each message as a separate workflow run
+          for ((i=0; i<MSG_COUNT; i++)); do
+            SOURCE=$(echo "$MESSAGES" | jq -r ".[$i].source")
+            TEXT=$(echo "$MESSAGES" | jq -r ".[$i].text")
+            SENDER=$(echo "$MESSAGES" | jq -r ".[$i].sender // empty")
+            echo "Dispatching [$SOURCE]: ${TEXT:0:80}..."
+            gh workflow run messages.yml -R "$GITHUB_REPOSITORY" \
+              -f source="$SOURCE" \
+              -f message="$TEXT"
+            sleep 2
+          done
+
+          if [ "$MSG_COUNT" -eq 0 ]; then
+            echo "No new messages"
+          fi
+
+      - name: Commit state changes
+        run: |
+          git config user.name "stoa[bot]"
+          git config user.email "stoa[bot]@users.noreply.github.com"
+          git add memory/ 2>/dev/null || true
+          if ! git diff --staged --quiet 2>/dev/null; then
+            git commit -m 'messages: poll @ '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            for i in 1 2 3; do
+              git pull --rebase origin main && git push && break
+              echo "Push attempt $i failed, retrying..."
+              sleep 2
+            done
+          fi
+
+  run:
+    if: github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && inputs.message != '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Extract message
+        id: msg
+        env:
+          _INPUT_MESSAGE: ${{ inputs.message }}
+          _INPUT_SOURCE: ${{ inputs.source }}
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            MESSAGE=$(echo '${{ toJson(github.event.client_payload.message) }}' | jq -r '.')
+            TYPE="${{ github.event.action }}"
+            SOURCE="webhook"
+            case "$TYPE" in
+              telegram-message) SOURCE="telegram" ;;
+              discord-message) SOURCE="discord" ;;
+              slack-message) SOURCE="slack" ;;
+            esac
+          else
+            MESSAGE="$_INPUT_MESSAGE"
+            SOURCE="${_INPUT_SOURCE:-manual}"
+          fi
+
+          if [ -n "$MESSAGE" ] && [ "$MESSAGE" != "null" ]; then
+            echo "source=$SOURCE" >> "$GITHUB_OUTPUT"
+            echo "message<<ENDOFMESSAGE" >> "$GITHUB_OUTPUT"
+            echo "$MESSAGE" >> "$GITHUB_OUTPUT"
+            echo "ENDOFMESSAGE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.msg.outputs.source != ''
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        if: steps.msg.outputs.source != ''
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        if: steps.msg.outputs.source != ''
+        run: npm ci --ignore-scripts
+
+      - name: Install Claude Code
+        if: steps.msg.outputs.source != ''
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Create notify script
+        if: steps.msg.outputs.source != ''
+        run: |
+          cat > ./notify << 'NOTIFY_SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          MSG="$1"
+          if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+            curl -sf -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -n --arg chat "$TELEGRAM_CHAT_ID" --arg text "$MSG" '{chat_id: $chat, text: $text, parse_mode: "Markdown"}')" > /dev/null || true
+          fi
+          if [ -n "${DISCORD_WEBHOOK_URL:-}" ]; then
+            curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -n --arg text "$MSG" '{content: $text}')" > /dev/null || true
+          fi
+          if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+            curl -sf -X POST "$SLACK_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -n --arg text "$MSG" '{text: $text}')" > /dev/null || true
+          fi
+          NOTIFY_SCRIPT
+          chmod +x ./notify
+
+      - name: Process message
+        if: steps.msg.outputs.source != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
+          SOLANA_PRIVATE_KEY: ${{ secrets.SOLANA_PRIVATE_KEY }}
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          STOA_MSG_MODE: handle
+          STOA_MSG_SOURCE: ${{ steps.msg.outputs.source }}
+          STOA_MSG_TEXT: ${{ steps.msg.outputs.message }}
+        run: npx tsx src/messages.ts handle
+
+      - name: Commit results
+        if: steps.msg.outputs.source != ''
+        env:
+          _COMMIT_SOURCE: ${{ steps.msg.outputs.source }}
+        run: |
+          git config user.name "stoa[bot]"
+          git config user.email "stoa[bot]@users.noreply.github.com"
+          rm -f ./notify
+          SOURCE="$_COMMIT_SOURCE"
+
+          git add memory/ 2>/dev/null || true
+          if ! git diff --staged --quiet 2>/dev/null; then
+            git commit -m "message($SOURCE): handled @ $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            for i in 1 2 3; do
+              git pull --rebase origin main && git push && break
+              echo "Push attempt $i failed, retrying..."
+              sleep 2
+            done
+          fi

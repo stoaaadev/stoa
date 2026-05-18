@@ -1,5 +1,5 @@
 # ============================================================
-# stoa.yml — Swarm Configuration (v2)
+# stoa.yml — Swarm Configuration (v3)
 # ============================================================
 # Each agent is an autonomous unit with a role, skills, and schedule.
 # Agents coordinate through the mesh (memory/mesh/) — async message
@@ -7,10 +7,10 @@
 #
 # Runtime: GitHub Actions (free tier = 2,000 min/month)
 # LLM: Claude Code CLI (configure ANTHROPIC_API_KEY in repo secrets)
-# Chain: Solana (configure SOLANA_RPC_URL and SOLANA_PRIVATE_KEY)
+# Chain: Solana (optional — configure SOLANA_RPC_URL for onchain skills)
 # ============================================================
 
-version: 2
+version: 3
 
 # --- Global Settings ---
 defaults:
@@ -28,21 +28,31 @@ notifications:
   discord:
     enabled: false
     webhook: ${DISCORD_WEBHOOK_URL}
+    bot_token: ${DISCORD_BOT_TOKEN}
+    channel_id: ${DISCORD_CHANNEL_ID}
+  slack:
+    enabled: false
+    bot_token: ${SLACK_BOT_TOKEN}
+    channel_id: ${SLACK_CHANNEL_ID}
+    webhook: ${SLACK_WEBHOOK_URL}
 
 # --- Health & Self-Healing Configuration ---
 health:
   scoring_model: claude-haiku-3-5-20241022
-  repair_cooldown_minutes: 60        # min time between repairs for same skill
-  max_repairs_per_hour: 3            # max auto-repairs per hour across all skills
+  repair_cooldown_minutes: 60
+  max_repairs_per_hour: 3
 
 # --- Security Configuration ---
 security:
-  scan_skills: true                  # scan skills for prompt injection before execution
+  scan_skills: true
   tool_allowlists:
     scout: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
     analyst: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
     executor: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
     guardian: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
+    researcher: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "WebSearch"]
+    writer: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "WebSearch"]
+    ops: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
   protected_paths:
     - "src/"
     - ".github/"
@@ -52,6 +62,8 @@ security:
 
 # --- Agent Definitions ---
 agents:
+
+  # ── Onchain Intelligence ──
   scout:
     role: "Onchain intelligence — monitors tokens, pools, whale wallets, and emerging signals on Solana"
     skills:
@@ -62,36 +74,48 @@ agents:
       - news-sentiment
       - onchain-monitor
       - social-signal
-    schedule: "*/30 * * * *"         # every 30 min
+      - bridge-monitor
+      - airdrop-tracker
+    schedule: "*/30 * * * *"
     var:
       watch_tokens: ["SOL", "JUP", "JTO", "PYTH", "RAY", "DRIFT"]
       whale_threshold_usd: 50000
       dex: ["raydium", "orca", "meteora", "jupiter"]
 
+  # ── Signal Processing ──
   analyst:
-    role: "Signal processing — evaluates scout findings, scores opportunities, generates trade theses"
+    role: "Signal processing — evaluates findings, scores opportunities, generates trade theses and research insights"
     skills:
       - analyze-signal
       - correlation-analysis
       - portfolio-rebalance
       - risk-scoring
       - narrative-tracker
-    schedule: "0 * * * *"            # every hour
+      - market-structure
+      - tokenomics-analysis
+      - trend-analysis
+      - trend-forecast
+      - benchmark-compare
+    schedule: "0 * * * *"
     triggers:
       - on: mesh
         from: scout
         type: signal
+      - on: mesh
+        from: researcher
+        type: research
     var:
       min_confidence: 0.7
       strategy: ["momentum", "mean-reversion", "narrative"]
 
+  # ── Trade Execution ──
   executor:
     role: "Trade execution — acts on analyst recommendations via Solana programs"
     skills:
       - execute-trade
       - dca-execute
       - stop-loss-execute
-    schedule: null                   # reactive only, no cron
+    schedule: null
     triggers:
       - on: mesh
         from: analyst
@@ -107,6 +131,7 @@ agents:
       slippage_bps: 50
       protocols: ["jupiter", "raydium"]
 
+  # ── Risk & Self-Healing ──
   guardian:
     role: "Risk management & swarm health — monitors positions, enforces safety, heals failing skills"
     skills:
@@ -117,7 +142,10 @@ agents:
       - cost-report
       - anomaly-detection
       - backup-state
-    schedule: "*/15 * * * *"         # every 15 min (check-risk)
+      - anomaly-report
+      - error-tracking
+      - sla-monitor
+    schedule: "*/15 * * * *"
     triggers:
       - on: mesh
         from: guardian
@@ -126,6 +154,110 @@ agents:
       max_drawdown_pct: 15
       max_portfolio_exposure_pct: 80
       alert_on_liquidation_risk: true
+
+  # ── Deep Research ──
+  researcher:
+    role: "Deep research — papers, protocols, governance, competitive intelligence, exploit analysis"
+    skills:
+      - arxiv-scan
+      - paper-summarize
+      - competitor-watch
+      - github-trending
+      - ecosystem-map
+      - protocol-deep-dive
+      - governance-tracker
+      - regulatory-scan
+      - tech-radar
+      - patent-scan
+      - funding-tracker
+      - developer-activity
+      - community-pulse
+      - security-audit-watch
+      - exploit-postmortem
+    schedule: "0 */4 * * *"           # every 4 hours
+    triggers:
+      - on: mesh
+        from: analyst
+        type: research-request
+    var:
+      sources: ["arxiv", "github", "rss", "twitter", "farcaster"]
+      max_papers_per_scan: 20
+      languages: ["en"]
+
+  # ── Content & Publishing ──
+  writer:
+    role: "Content creation — articles, newsletters, social posts, documentation, reports"
+    skills:
+      - write-article
+      - write-thread
+      - write-newsletter
+      - daily-digest
+      - weekly-recap
+      - changelog-generate
+      - blog-draft
+      - tweet-compose
+      - discord-post
+      - telegram-broadcast
+      - content-calendar
+      - seo-optimize
+      - repurpose-content
+      - fact-check
+      - editorial-review
+      - press-release
+      - case-study
+      - tutorial-write
+      - comparison-post
+      - opinion-piece
+    schedule: "0 8 * * *"            # daily at 8am
+    triggers:
+      - on: mesh
+        from: researcher
+        type: research
+      - on: mesh
+        from: analyst
+        type: insight
+    var:
+      tone: "professional"
+      max_article_words: 2000
+      platforms: ["blog", "twitter", "telegram", "discord"]
+
+  # ── DevOps & Automation ──
+  ops:
+    role: "DevOps & automation — repo health, CI monitoring, dependency audits, infrastructure management"
+    skills:
+      - repo-health
+      - issue-triage
+      - pr-review
+      - dependency-audit
+      - ci-monitor
+      - changelog-update
+      - docs-sync
+      - code-quality
+      - test-coverage
+      - security-scan
+      - performance-monitor
+      - deployment-status
+      - infra-cost
+      - api-health
+      - auto-label
+      - auto-assign
+      - reminder-send
+      - report-schedule
+      - task-prioritize
+      - workflow-optimize
+      - notification-digest
+      - escalation-manage
+      - capacity-plan
+      - resource-optimize
+      - batch-process
+      - queue-manage
+      - cleanup-routine
+      - sync-external
+    schedule: "0 */2 * * *"          # every 2 hours
+    var:
+      repos: ["stoaaadev/stoa"]
+      alert_on_ci_failure: true
+      max_open_issues: 50
 
 # --- Skill Chains (Multi-step Pipelines) ---
 chains:
@@ -147,18 +279,50 @@ chains:
     max_retries: 1
 
   morning-pipeline:
-    name: "Morning Brief + Analysis"
+    name: "Morning Brief + Analysis + Digest"
     steps:
       brief:
         agent: scout
         skill: morning-brief
+      research:
+        agent: researcher
+        skill: arxiv-scan
       analysis:
         agent: analyst
         skill: analyze-signal
         depends_on: [brief]
+      digest:
+        agent: writer
+        skill: daily-digest
+        depends_on: [brief, research, analysis]
     on_failure: continue
     max_retries: 0
-    schedule: "0 9 * * *"           # 9am daily
+    schedule: "0 8 * * *"
+
+  research-pipeline:
+    name: "Deep Research + Content Pipeline"
+    steps:
+      scan-papers:
+        agent: researcher
+        skill: arxiv-scan
+      scan-github:
+        agent: researcher
+        skill: github-trending
+      summarize:
+        agent: researcher
+        skill: paper-summarize
+        depends_on: [scan-papers]
+      write:
+        agent: writer
+        skill: write-newsletter
+        depends_on: [summarize, scan-github]
+      review:
+        agent: writer
+        skill: editorial-review
+        depends_on: [write]
+    on_failure: continue
+    max_retries: 0
+    schedule: "0 10 * * 1,4"         # Monday and Thursday at 10am
 
   weekly-maintenance:
     name: "Weekly Self-Improvement Cycle"
@@ -169,18 +333,66 @@ chains:
       cost:
         agent: guardian
         skill: cost-report
+      repo:
+        agent: ops
+        skill: repo-health
+      deps:
+        agent: ops
+        skill: dependency-audit
       improve:
         agent: guardian
         skill: self-improve
-        depends_on: [health, cost]
+        depends_on: [health, cost, repo]
+      changelog:
+        agent: writer
+        skill: changelog-generate
+        depends_on: [improve]
     on_failure: continue
     max_retries: 0
-    schedule: "0 0 * * 0"           # Sunday midnight
+    schedule: "0 0 * * 0"
+
+  social-pipeline:
+    name: "Social Listening + Content Response"
+    steps:
+      listen:
+        agent: scout
+        skill: social-signal
+      sentiment:
+        agent: analyst
+        skill: narrative-tracker
+        depends_on: [listen]
+      respond:
+        agent: writer
+        skill: tweet-compose
+        depends_on: [sentiment]
+    on_failure: continue
+    max_retries: 0
+    schedule: "0 */6 * * *"
+
+  security-audit:
+    name: "Security Monitoring Pipeline"
+    steps:
+      scan-exploits:
+        agent: researcher
+        skill: exploit-postmortem
+      scan-audits:
+        agent: researcher
+        skill: security-audit-watch
+      repo-scan:
+        agent: ops
+        skill: security-scan
+      report:
+        agent: guardian
+        skill: anomaly-report
+        depends_on: [scan-exploits, scan-audits, repo-scan]
+    on_failure: continue
+    max_retries: 0
+    schedule: "0 6 * * *"
 
 # --- Mesh Configuration ---
 mesh:
-  max_history: 50                    # messages per agent inbox
-  ttl_hours: 24                      # auto-expire old messages
+  max_history: 100
+  ttl_hours: 48
 
 # --- Swarm Rules ---
 rules:
@@ -192,3 +404,6 @@ rules:
   - "Self-repair may only modify SKILL.md files — never src/ or .github/"
   - "Maximum 3 auto-repairs per hour to prevent repair loops"
   - "Wallet balance must be verified before any trade execution"
+  - "Researcher must cite sources with URLs — no unsourced claims"
+  - "Writer must fact-check before publishing to external platforms"
+  - "Ops may not deploy to production without guardian approval"

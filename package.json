@@ -1,7 +1,7 @@
 {
   "name": "stoa",
-  "version": "0.2.0",
-  "description": "Solana-native multi-agent swarm framework. Autonomous agents coordinate onchain via GitHub Actions.",
+  "version": "0.3.0",
+  "description": "Multi-agent swarm framework. Seven autonomous agents coordinate via GitHub Actions — trading, research, content, social, devops, and automation.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

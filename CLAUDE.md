@@ -42,6 +42,8 @@ memory/
 ├── cost-report.json       # weekly cost breakdown
 ├── ratelimit-state.json   # API rate limit token buckets
 ├── dedup-state.json       # dispatch deduplication state
+├── message-state.json     # inbound message polling state (offsets, dedup hashes)
+├── message-log.json       # inbound message history with routing info
 ├── token-usage.csv        # per-run token and cost tracking
 ├── skill-health/          # quality scores per agent-skill pair
 ├── logs/                  # structured log files (daily)
@@ -92,6 +94,50 @@ Your output quality is automatically scored (1-5 scale). To achieve high scores:
 - **1/5**: Failed execution or critical errors
 
 The self-healing system tracks your scores over 30 runs. Three consecutive scores of 2 or below triggers an automatic repair review.
+
+## Inbound Messaging
+
+The swarm accepts messages from users via Telegram, Discord, and Slack. The `messages.yml` workflow polls channels every 5 minutes and routes messages to the appropriate agent.
+
+### Channel Configuration
+
+| Channel   | Outbound (notifications)                  | Inbound (messaging)                                |
+|-----------|-------------------------------------------|----------------------------------------------------|
+| Telegram  | `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` | Same secrets (offset-based polling)                |
+| Discord   | `DISCORD_WEBHOOK_URL`                     | `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID` (reaction-based ack) |
+| Slack     | `SLACK_WEBHOOK_URL`                       | `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` (reaction-based ack) |
+
+Each channel is opt-in. Set the required secrets in your repo and enable in `stoa.yml`. No secrets means the channel is silently skipped.
+
+### Message Routing
+
+Messages are routed to agents based on keyword analysis:
+- **executor**: trading, price, trade, buy, sell, swap, execute, dca
+- **analyst**: research, analyze, analysis, signal, evaluate, score, thesis
+- **scout**: monitor, scan, watch, whale, track, pool, token, dex
+- **guardian**: health, risk, status, drawdown, halt, repair, cost, balance
+
+If no keywords match, the message defaults to the **scout** agent. You can also override routing via the `agent` input on `workflow_dispatch`.
+
+### The `./notify` Tool
+
+During message handling (and agent execution), a `./notify` script is available in the working directory. Use it to send responses back to the user across all configured channels:
+
+```bash
+./notify "Your response message here"
+```
+
+The script fans out to every configured channel (Telegram, Discord, Slack) and silently skips any that are not configured.
+
+### Message State
+
+Message polling state is tracked in `memory/message-state.json`:
+- `telegram_offset`: Telegram getUpdates offset for incremental polling
+- `discord_last_ids`: Last processed Discord message ID per channel
+- `slack_last_ts`: Last processed Slack message timestamp per channel
+- `processed_hashes`: SHA-256 hashes of recently processed messages for dedup
+
+Message history is logged in `memory/message-log.json`.
 
 ## Anti-Patterns
 

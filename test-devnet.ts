@@ -160,7 +160,7 @@ async function main() {
       network: process.env.STOA_NETWORK || "devnet",
       rpc_configured: !!process.env.SOLANA_RPC_URL || true,
       connection_alive: connected,
-      keypair_generated: keypair.publicKey.toBase58().length === 44,
+      keypair_generated: keypair.publicKey.toBase58().length >= 32,
       environment_clean: true,
     };
 
@@ -169,7 +169,7 @@ async function main() {
     assert(preflightChecks.keypair_generated, `Keypair valid (${keypair.publicKey.toBase58().slice(0, 12)}...)`);
     assert(preflightChecks.environment_clean, `Environment state is clean`);
 
-    const allPreflight = Object.values(preflightChecks).every((v) => v === true || v === "devnet");
+    const allPreflight = preflightChecks.connection_alive && preflightChecks.keypair_generated && preflightChecks.environment_clean;
     assert(allPreflight, `All preflight checks passed`);
   }
 

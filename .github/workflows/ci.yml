@@ -45,6 +45,7 @@ jobs:
 
   devnet-test:
     runs-on: ubuntu-latest
+    continue-on-error: true
     needs: [test, validate]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:

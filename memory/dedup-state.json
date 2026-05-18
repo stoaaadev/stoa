@@ -1,16 +1,16 @@
 [
   {
-    "hash": "e4a5f63a8eba8aa4",
+    "hash": "64c8b1ba863efef5",
     "agent": "analyst",
     "skill": "analyze-signal",
-    "dispatched_at": "2026-05-18T10:05:43.308Z",
-    "expires_at": "2026-05-18T10:15:43.308Z"
+    "dispatched_at": "2026-05-18T10:23:58.772Z",
+    "expires_at": "2026-05-18T10:33:58.772Z"
   },
   {
-    "hash": "b474e87842666277",
+    "hash": "833f1c0a40449c43",
     "agent": "executor",
     "skill": "execute-trade",
-    "dispatched_at": "2026-05-18T10:05:43.308Z",
-    "expires_at": "2026-05-18T10:15:43.308Z"
+    "dispatched_at": "2026-05-18T10:23:58.773Z",
+    "expires_at": "2026-05-18T10:33:58.773Z"
   }
 ]

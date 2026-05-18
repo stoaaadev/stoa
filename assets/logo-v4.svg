@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="rough">
+      <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="3" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <pattern id="halftone" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.5" fill="#e0d5c0" opacity="0.15"/>
+    </pattern>
+    <pattern id="halftone2" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+      <circle cx="3" cy="3" r="1.2" fill="#e0d5c0" opacity="0.1"/>
+    </pattern>
+  </defs>
+
+  <!-- Solid black bg -->
+  <rect width="512" height="512" fill="#090909"/>
+
+  <!-- Halftone texture layers -->
+  <rect width="512" height="512" fill="url(#halftone)"/>
+  <rect width="512" height="512" fill="url(#halftone2)"/>
+
+  <!-- Heavy border -->
+  <rect x="4" y="4" width="504" height="504" fill="none" stroke="#e0d5c0" stroke-width="3" opacity="0.15"/>
+
+  <!-- STOA — massive, rough, condensed -->
+  <g filter="url(#rough)">
+    <!-- S -->
+    <rect x="62" y="140" width="88" height="22" fill="#e0d5c0"/>
+    <rect x="62" y="140" width="22" height="110" fill="#e0d5c0"/>
+    <rect x="62" y="232" width="88" height="22" fill="#e0d5c0"/>
+    <rect x="128" y="232" width="22" height="110" fill="#e0d5c0"/>
+    <rect x="62" y="322" width="88" height="22" fill="#e0d5c0"/>
+
+    <!-- T -->
+    <rect x="168" y="140" width="88" height="22" fill="#e0d5c0"/>
+    <rect x="200" y="140" width="22" height="204" fill="#e0d5c0"/>
+
+    <!-- O -->
+    <rect x="274" y="140" width="88" height="22" fill="#e0d5c0"/>
+    <rect x="274" y="140" width="22" height="204" fill="#e0d5c0"/>
+    <rect x="340" y="140" width="22" height="204" fill="#e0d5c0"/>
+    <rect x="274" y="322" width="88" height="22" fill="#e0d5c0"/>
+
+    <!-- A -->
+    <rect x="380" y="140" width="22" height="204" fill="#e0d5c0"/>
+    <rect x="380" y="140" width="88" height="22" fill="#e0d5c0"/>
+    <rect x="446" y="140" width="22" height="204" fill="#e0d5c0"/>
+    <rect x="380" y="232" width="88" height="22" fill="#e0d5c0"/>
+  </g>
+
+  <!-- Overprint mark: four vertical slashes beneath -->
+  <g opacity="0.4">
+    <rect x="186" y="375" width="6" height="40" fill="#e0d5c0"/>
+    <rect x="216" y="375" width="6" height="40" fill="#e0d5c0"/>
+    <rect x="246" y="375" width="6" height="40" fill="#e0d5c0"/>
+    <rect x="276" y="375" width="6" height="40" fill="#e0d5c0"/>
+    <!-- connecting line -->
+    <rect x="186" y="393" width="96" height="2" fill="#e0d5c0" opacity="0.5"/>
+  </g>
+
+  <!-- Grain overlay -->
+  <rect width="512" height="512" fill="transparent" filter="url(#grain)" opacity="0.12"/>
+</svg>

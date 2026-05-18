@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500" width="1500" height="500">
+  <defs>
+    <filter id="grain2">
+      <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="rough2">
+      <feTurbulence type="turbulence" baseFrequency="0.015" numOctaves="2" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <pattern id="ht" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+      <circle cx="3" cy="3" r="1.8" fill="#d0c5a8" opacity="0.07"/>
+    </pattern>
+    <pattern id="ht2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-15)">
+      <circle cx="5" cy="5" r="2.5" fill="#d0c5a8" opacity="0.05"/>
+    </pattern>
+    <pattern id="ht3" width="4" height="4" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.8" fill="#d0c5a8" opacity="0.12"/>
+    </pattern>
+  </defs>
+
+  <!-- Black background -->
+  <rect width="1500" height="500" fill="#080808"/>
+
+  <!-- Halftone textures -->
+  <rect width="1500" height="500" fill="url(#ht)"/>
+  <rect width="1500" height="500" fill="url(#ht2)"/>
+
+  <!-- Dense halftone zone in center -->
+  <rect x="200" y="50" width="1100" height="400" fill="url(#ht3)" opacity="0.8"/>
+
+  <!-- STOA — massive block letters, rough edges -->
+  <g filter="url(#rough2)">
+    <!-- S -->
+    <rect x="195" y="100" width="200" height="44" fill="#d0c5a8"/>
+    <rect x="195" y="100" width="44" height="152" fill="#d0c5a8"/>
+    <rect x="195" y="228" width="200" height="44" fill="#d0c5a8"/>
+    <rect x="351" y="228" width="44" height="152" fill="#d0c5a8"/>
+    <rect x="195" y="356" width="200" height="44" fill="#d0c5a8"/>
+
+    <!-- T -->
+    <rect x="425" y="100" width="200" height="44" fill="#d0c5a8"/>
+    <rect x="501" y="100" width="44" height="300" fill="#d0c5a8"/>
+
+    <!-- O -->
+    <rect x="655" y="100" width="200" height="44" fill="#d0c5a8"/>
+    <rect x="655" y="100" width="44" height="300" fill="#d0c5a8"/>
+    <rect x="811" y="100" width="44" height="300" fill="#d0c5a8"/>
+    <rect x="655" y="356" width="200" height="44" fill="#d0c5a8"/>
+
+    <!-- A -->
+    <rect x="885" y="100" width="44" height="300" fill="#d0c5a8"/>
+    <rect x="885" y="100" width="200" height="44" fill="#d0c5a8"/>
+    <rect x="1041" y="100" width="44" height="300" fill="#d0c5a8"/>
+    <rect x="885" y="228" width="200" height="44" fill="#d0c5a8"/>
+  </g>
+
+  <!-- Decorative vertical lines (agents) bottom right -->
+  <g opacity="0.25">
+    <rect x="1200" y="360" width="8" height="60" fill="#d0c5a8"/>
+    <rect x="1230" y="360" width="8" height="60" fill="#d0c5a8"/>
+    <rect x="1260" y="360" width="8" height="60" fill="#d0c5a8"/>
+    <rect x="1290" y="360" width="8" height="60" fill="#d0c5a8"/>
+    <rect x="1200" y="388" width="98" height="2" fill="#d0c5a8" opacity="0.5"/>
+  </g>
+
+  <!-- Grain -->
+  <rect width="1500" height="500" fill="transparent" filter="url(#grain2)" opacity="0.1"/>
+
+  <!-- Border scuffs -->
+  <rect x="0" y="0" width="1500" height="3" fill="#d0c5a8" opacity="0.08"/>
+  <rect x="0" y="497" width="1500" height="3" fill="#d0c5a8" opacity="0.08"/>
+</svg>

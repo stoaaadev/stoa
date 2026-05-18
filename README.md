@@ -12,8 +12,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/YOUR_USERNAME/stoa/stargazers"><img src="https://img.shields.io/github/stars/YOUR_USERNAME/stoa?style=flat-square" alt="Stars"></a>
-  <a href="https://github.com/YOUR_USERNAME/stoa/network/members"><img src="https://img.shields.io/github/forks/YOUR_USERNAME/stoa?style=flat-square" alt="Forks"></a>
+  <a href="https://github.com/stoaaadev/stoa/stargazers"><img src="https://img.shields.io/github/stars/stoaaadev/stoa?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/stoaaadev/stoa/network/members"><img src="https://img.shields.io/github/forks/stoaaadev/stoa?style=flat-square" alt="Forks"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
   <a href="https://solana.com"><img src="https://img.shields.io/badge/chain-Solana-9945FF?style=flat-square&logo=solana&logoColor=white" alt="Solana"></a>
 </p>
@@ -57,7 +57,7 @@ Single agents conflate observation with action. A single agent that both discove
 
 ```bash
 # 1. Fork this repo (or use as template)
-gh repo create my-stoa --template YOUR_USERNAME/stoa --private
+gh repo create my-stoa --template stoaaadev/stoa --private
 
 # 2. Set secrets
 gh secret set ANTHROPIC_API_KEY --body "sk-ant-..."

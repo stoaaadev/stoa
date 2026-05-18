@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0a0a0a"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="512" height="512" fill="url(#glow)" rx="64"/>
+
+  <!-- Four vertical bars (columns = agents) -->
+  <!-- Scout -->
+  <rect x="108" y="100" width="40" height="312" fill="#c8a050" rx="4" opacity="0.9"/>
+  <!-- Analyst -->
+  <rect x="196" y="100" width="40" height="312" fill="#c8a050" rx="4" opacity="0.75"/>
+  <!-- Executor -->
+  <rect x="276" y="100" width="40" height="312" fill="#c8a050" rx="4" opacity="0.75"/>
+  <!-- Guardian -->
+  <rect x="364" y="100" width="40" height="312" fill="#c8a050" rx="4" opacity="0.9"/>
+
+  <!-- Horizontal connecting beams (mesh) -->
+  <rect x="108" y="100" width="296" height="6" fill="#e8dcc8" rx="2"/>
+  <rect x="108" y="406" width="296" height="6" fill="#e8dcc8" rx="2"/>
+
+  <!-- Center diamond/eye (the shared mind) -->
+  <g transform="translate(256, 256)">
+    <polygon points="0,-35 35,0 0,35 -35,0" fill="none" stroke="#f0d080" stroke-width="3"/>
+    <circle cx="0" cy="0" r="10" fill="#f0d080"/>
+    <!-- Pulse rings -->
+    <circle cx="0" cy="0" r="22" fill="none" stroke="#f0d080" stroke-width="1" opacity="0.4"/>
+    <circle cx="0" cy="0" r="50" fill="none" stroke="#f0d080" stroke-width="0.5" opacity="0.2"/>
+  </g>
+
+  <!-- Mesh connection lines (agents to center) -->
+  <line x1="148" y1="256" x2="221" y2="256" stroke="#f0d080" stroke-width="1" opacity="0.3"/>
+  <line x1="291" y1="256" x2="364" y2="256" stroke="#f0d080" stroke-width="1" opacity="0.3"/>
+  <line x1="256" y1="221" x2="256" y2="106" stroke="#f0d080" stroke-width="1" opacity="0.3"/>
+  <line x1="256" y1="291" x2="256" y2="406" stroke="#f0d080" stroke-width="1" opacity="0.3"/>
+</svg>

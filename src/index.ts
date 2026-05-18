@@ -13,6 +13,7 @@ Usage:
   stoa status            Show swarm status
   stoa health            Show skill health reports
   stoa cost              Show token usage and cost summary
+  stoa gateway            Show LLM provider status
   stoa agents            List all agents and their config
   stoa mesh <agent>      Show an agent's inbox
   stoa validate          Validate config and skills
@@ -169,13 +170,11 @@ async function main() {
       console.log("=== stoa LLM gateway ===");
       console.log("\nAvailable providers:");
       for (const p of status.available) {
-        console.log(`  [ok] ${p}`);
+        console.log(`  ✓ ${p}`);
       }
-      if (status.unavailable.length > 0) {
-        console.log("\nUnavailable:");
-        for (const p of status.unavailable) {
-          console.log(`  [--] ${p}`);
-        }
+      console.log("\nUnavailable:");
+      for (const p of status.unavailable) {
+        console.log(`  ✗ ${p}`);
       }
       break;
     }

@@ -22,6 +22,8 @@ import { validateOutput } from "./validate.js";
 import { getToolAllowlist, scanSkillForInjection } from "./security.js";
 import { recordUsage, estimateCost, TokenUsage } from "./tokens.js";
 import { isNotificationDuplicate } from "./dedup.js";
+import { runPreflight } from "./preflight.js";
+import { runPostflight } from "./postflight.js";
 
 const log = createLogger("execute");
 
@@ -246,6 +248,29 @@ async function main() {
     process.exit(1);
   }
 
+  // Preflight checks
+  const preflight = await runPreflight(AGENT_NAME, SKILL_NAME);
+  if (!preflight.pass) {
+    log.error("Preflight failed", {
+      agent: AGENT_NAME,
+      skill: SKILL_NAME,
+      reason: preflight.blocking_reason,
+      checks: preflight.checks.filter(c => !c.passed)
+    });
+    // Record as skipped, not failed
+    const state = getCronState();
+    state.agents[AGENT_NAME] = {
+      ...state.agents[AGENT_NAME],
+      last_dispatch: new Date().toISOString(),
+      last_status: "skipped",
+      run_count: (state.agents[AGENT_NAME]?.run_count || 0) + 1,
+    };
+    setCronState(state);
+    console.log(`[stoa] Preflight blocked: ${preflight.blocking_reason}`);
+    process.exit(0); // Clean exit, not a failure
+  }
+  log.info("Preflight passed", { checks: preflight.checks.length });
+
   // Load agent definition and skill
   const agentMd = loadMarkdown(`agents/${AGENT_NAME}/AGENT.md`);
   const skillMd = loadMarkdown(skillPath);
@@ -312,6 +337,22 @@ async function main() {
     duration_ms: result.duration_ms,
   };
   recordUsage(usage);
+
+  // Postflight verification
+  if (result.success) {
+    const postflight = await runPostflight(AGENT_NAME, SKILL_NAME, result.output);
+    if (!postflight.verified) {
+      log.warn("Postflight verification failed", {
+        checks: postflight.checks.filter(c => !c.passed),
+        warnings: postflight.warnings
+      });
+      // Don't block, but downgrade score
+      skillScore.score = Math.max(1, skillScore.score - 1);
+    }
+    if (postflight.warnings.length > 0) {
+      log.warn("Postflight warnings", { warnings: postflight.warnings });
+    }
+  }
 
   // Acknowledge processed inbox messages
   if (inboxMessages.length > 0) {

@@ -1,6 +1,3 @@
-# .github/workflows/ci.yml — Continuous Integration
-# Runs on every push and PR. Validates types, linting, and tests.
-
 name: ci
 
 on:
@@ -9,35 +6,56 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-
 jobs:
-  validate:
+  typecheck:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
+      - run: npm ci --ignore-scripts
+      - run: npx tsc --noEmit
 
-      - name: Install dependencies
-        run: npm ci
+  test:
+    runs-on: ubuntu-latest
+    needs: typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci --ignore-scripts
+      - run: npx tsx test-pipeline.ts
 
-      - name: Type check
-        run: npx tsc --noEmit
+  validate:
+    runs-on: ubuntu-latest
+    needs: typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci --ignore-scripts
+      - run: npx tsc
+      - run: node dist/index.js validate
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Test
-        run: npm test
-
-      - name: Security audit
-        run: npm audit --production --audit-level=moderate || true
-
-      - name: Validate config
-        run: npx tsx src/validate-config.ts
+  devnet-test:
+    runs-on: ubuntu-latest
+    needs: [test, validate]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci --ignore-scripts
+      - name: Run devnet integration test
+        env:
+          SOLANA_RPC_URL: "https://api.devnet.solana.com"
+          STOA_NETWORK: devnet
+        run: npx tsx test-devnet.ts

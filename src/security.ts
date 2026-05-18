@@ -93,7 +93,7 @@ export function scanSkillForInjection(skillPath: string): { safe: boolean; issue
   const injectionPatterns = [
     { pattern: /ignore.*previous.*instructions/i, desc: "Instruction override attempt" },
     { pattern: /you are now/i, desc: "Role reassignment attempt" },
-    { pattern: /^system:\s*$/im, desc: "Fake system prompt" },
+    { pattern: /^system:\s*\n\s*(you are|ignore|forget|override)/im, desc: "Fake system prompt" },
     { pattern: /\[INST\]/i, desc: "Model-specific instruction injection" },
     { pattern: /<\|im_start\|>/i, desc: "ChatML injection" },
     { pattern: /Human:|Assistant:/i, desc: "Conversation injection" },

@@ -1,93 +1,93 @@
 [
   {
-    "hash": "9971c15b78b4bfad",
+    "hash": "21ac0d19c58cab11",
     "agent": "analyst",
     "skill": "analyze-signal",
-    "dispatched_at": "2026-05-18T17:38:12.321Z",
-    "expires_at": "2026-05-18T17:48:12.321Z"
+    "dispatched_at": "2026-05-18T21:54:39.067Z",
+    "expires_at": "2026-05-18T22:04:39.067Z"
   },
   {
-    "hash": "73a5e971e5553ba9",
+    "hash": "0a387ac8c060800b",
     "agent": "analyst",
     "skill": "correlation-analysis",
-    "dispatched_at": "2026-05-18T17:38:13.977Z",
-    "expires_at": "2026-05-18T17:48:13.977Z"
+    "dispatched_at": "2026-05-18T21:54:40.455Z",
+    "expires_at": "2026-05-18T22:04:40.455Z"
   },
   {
-    "hash": "7a161ae087fa8211",
+    "hash": "6a5f1414b4e62609",
     "agent": "analyst",
     "skill": "portfolio-rebalance",
-    "dispatched_at": "2026-05-18T17:38:15.519Z",
-    "expires_at": "2026-05-18T17:48:15.519Z"
+    "dispatched_at": "2026-05-18T21:54:41.917Z",
+    "expires_at": "2026-05-18T22:04:41.917Z"
   },
   {
-    "hash": "f42bf4c33d7adf0f",
+    "hash": "8af5cd34cbf45fee",
     "agent": "analyst",
     "skill": "risk-scoring",
-    "dispatched_at": "2026-05-18T17:38:17.111Z",
-    "expires_at": "2026-05-18T17:48:17.111Z"
+    "dispatched_at": "2026-05-18T21:54:43.427Z",
+    "expires_at": "2026-05-18T22:04:43.427Z"
   },
   {
-    "hash": "09fdc3e81718599c",
+    "hash": "ae9c9ac55c1106cf",
     "agent": "analyst",
     "skill": "narrative-tracker",
-    "dispatched_at": "2026-05-18T17:38:18.681Z",
-    "expires_at": "2026-05-18T17:48:18.681Z"
+    "dispatched_at": "2026-05-18T21:54:44.836Z",
+    "expires_at": "2026-05-18T22:04:44.836Z"
   },
   {
-    "hash": "a4a180863505ee52",
+    "hash": "241b510dc85df69e",
     "agent": "analyst",
     "skill": "market-structure",
-    "dispatched_at": "2026-05-18T17:38:20.310Z",
-    "expires_at": "2026-05-18T17:48:20.310Z"
+    "dispatched_at": "2026-05-18T21:54:46.293Z",
+    "expires_at": "2026-05-18T22:04:46.293Z"
   },
   {
-    "hash": "b389c6f8899654ef",
+    "hash": "07843a5c98ccc513",
     "agent": "analyst",
     "skill": "tokenomics-analysis",
-    "dispatched_at": "2026-05-18T17:38:22.002Z",
-    "expires_at": "2026-05-18T17:48:22.002Z"
+    "dispatched_at": "2026-05-18T21:54:47.735Z",
+    "expires_at": "2026-05-18T22:04:47.735Z"
   },
   {
-    "hash": "d1e47f89155dea29",
+    "hash": "675aa02beef3bcea",
     "agent": "analyst",
     "skill": "trend-analysis",
-    "dispatched_at": "2026-05-18T17:38:23.474Z",
-    "expires_at": "2026-05-18T17:48:23.474Z"
+    "dispatched_at": "2026-05-18T21:54:49.211Z",
+    "expires_at": "2026-05-18T22:04:49.211Z"
   },
   {
-    "hash": "e62c669285e90b78",
+    "hash": "98b885be14a0b55f",
     "agent": "analyst",
     "skill": "trend-forecast",
-    "dispatched_at": "2026-05-18T17:38:25.094Z",
-    "expires_at": "2026-05-18T17:48:25.094Z"
+    "dispatched_at": "2026-05-18T21:54:50.609Z",
+    "expires_at": "2026-05-18T22:04:50.609Z"
   },
   {
-    "hash": "29ab96eaf92c5c44",
+    "hash": "658a7f2c78a2f466",
     "agent": "analyst",
     "skill": "benchmark-compare",
-    "dispatched_at": "2026-05-18T17:38:26.844Z",
-    "expires_at": "2026-05-18T17:48:26.844Z"
+    "dispatched_at": "2026-05-18T21:54:52.109Z",
+    "expires_at": "2026-05-18T22:04:52.109Z"
   },
   {
-    "hash": "cd7b763a6e49d13c",
+    "hash": "5d0a3a834a3a51ad",
     "agent": "executor",
     "skill": "execute-trade",
-    "dispatched_at": "2026-05-18T17:38:28.414Z",
-    "expires_at": "2026-05-18T17:48:28.414Z"
+    "dispatched_at": "2026-05-18T21:54:53.565Z",
+    "expires_at": "2026-05-18T22:04:53.565Z"
   },
   {
-    "hash": "c49e3c69a48cf76b",
+    "hash": "b9dbcfbcb0d21235",
     "agent": "executor",
     "skill": "dca-execute",
-    "dispatched_at": "2026-05-18T17:38:29.974Z",
-    "expires_at": "2026-05-18T17:48:29.974Z"
+    "dispatched_at": "2026-05-18T21:54:55.050Z",
+    "expires_at": "2026-05-18T22:04:55.050Z"
   },
   {
-    "hash": "d6c46fc4ec9dc9cc",
+    "hash": "127a8309958ddb78",
     "agent": "executor",
     "skill": "stop-loss-execute",
-    "dispatched_at": "2026-05-18T17:38:31.628Z",
-    "expires_at": "2026-05-18T17:48:31.628Z"
+    "dispatched_at": "2026-05-18T21:54:56.416Z",
+    "expires_at": "2026-05-18T22:04:56.416Z"
   }
 ]

@@ -88,5 +88,41 @@
     "price": 1.45,
     "status": "filled",
     "tx_signature": "5xG7kJmN2vF8qRtY9pLwE3dA6hB4cU1iO0sZ"
+  },
+  {
+    "timestamp": "2026-05-19T00:48:00.756Z",
+    "action": "buy",
+    "token": "JUP",
+    "amount": 68.97,
+    "price": 1.45,
+    "status": "filled",
+    "tx_signature": "5xG7kJmN2vF8qRtY9pLwE3dA6hB4cU1iO0sZ"
+  },
+  {
+    "timestamp": "2026-05-19T00:48:34.369Z",
+    "action": "buy",
+    "token": "JUP",
+    "amount": 68.97,
+    "price": 1.45,
+    "status": "filled",
+    "tx_signature": "5xG7kJmN2vF8qRtY9pLwE3dA6hB4cU1iO0sZ"
+  },
+  {
+    "timestamp": "2026-05-19T00:48:53.310Z",
+    "action": "buy",
+    "token": "JUP",
+    "amount": 68.97,
+    "price": 1.45,
+    "status": "filled",
+    "tx_signature": "5xG7kJmN2vF8qRtY9pLwE3dA6hB4cU1iO0sZ"
+  },
+  {
+    "timestamp": "2026-05-19T00:52:35.798Z",
+    "action": "buy",
+    "token": "JUP",
+    "amount": 68.97,
+    "price": 1.45,
+    "status": "filled",
+    "tx_signature": "5xG7kJmN2vF8qRtY9pLwE3dA6hB4cU1iO0sZ"
   }
 ]

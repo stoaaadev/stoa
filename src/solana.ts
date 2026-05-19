@@ -11,7 +11,6 @@ import {
   VersionedTransaction,
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
-import { execSync } from "child_process";
 import { createLogger } from "./logger.js";
 import { consumeToken, waitForToken } from "./ratelimit.js";
 
@@ -328,14 +327,20 @@ export async function getQuote(
   }
 
   try {
-    const url = `${JUPITER_API}/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}`;
+    const url = `${JUPITER_API}/quote?inputMint=${encodeURIComponent(inputMint)}&outputMint=${encodeURIComponent(outputMint)}&amount=${amountLamports}&slippageBps=${slippageBps}`;
 
-    const result = execSync(
-      `curl -s --max-time 15 "${url}"`,
-      { encoding: "utf-8", timeout: 20000 }
-    );
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
 
-    const parsed = JSON.parse(result);
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      log.error("Jupiter quote HTTP error", { status: response.status });
+      return null;
+    }
+
+    const parsed = await response.json() as Record<string, unknown>;
 
     if (parsed.error) {
       log.error("Jupiter quote error", { error: parsed.error });
@@ -343,15 +348,15 @@ export async function getQuote(
     }
 
     const quote: JupiterQuote = {
-      inputMint: parsed.inputMint,
-      outputMint: parsed.outputMint,
-      inAmount: parsed.inAmount,
-      outAmount: parsed.outAmount,
-      otherAmountThreshold: parsed.otherAmountThreshold,
-      swapMode: parsed.swapMode,
-      slippageBps: parsed.slippageBps,
-      priceImpactPct: parsed.priceImpactPct,
-      routePlan: parsed.routePlan || [],
+      inputMint: parsed.inputMint as string,
+      outputMint: parsed.outputMint as string,
+      inAmount: parsed.inAmount as string,
+      outAmount: parsed.outAmount as string,
+      otherAmountThreshold: parsed.otherAmountThreshold as string,
+      swapMode: parsed.swapMode as string,
+      slippageBps: parsed.slippageBps as number,
+      priceImpactPct: parsed.priceImpactPct as string,
+      routePlan: (parsed.routePlan as unknown[]) || [],
       raw: parsed,
     };
 
@@ -380,19 +385,28 @@ export async function executeSwap(quoteResponse: object): Promise<string | null>
     const keypair = getKeypair();
     const connection = getConnection();
 
-    // Request swap transaction from Jupiter
-    const swapPayload = JSON.stringify({
-      quoteResponse,
-      userPublicKey: keypair.publicKey.toBase58(),
-      wrapAndUnwrapSol: true,
+    // Request swap transaction from Jupiter using native fetch (no shell injection risk)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
+
+    const swapResponse = await fetch(`${JUPITER_API}/swap`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        quoteResponse,
+        userPublicKey: keypair.publicKey.toBase58(),
+        wrapAndUnwrapSol: true,
+      }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
-    const swapResult = execSync(
-      `curl -s --max-time 30 -X POST "${JUPITER_API}/swap" -H "Content-Type: application/json" -d '${swapPayload.replace(/'/g, "'\\''")}'`,
-      { encoding: "utf-8", timeout: 35000 }
-    );
+    if (!swapResponse.ok) {
+      log.error("Jupiter swap HTTP error", { status: swapResponse.status });
+      return null;
+    }
 
-    const swapData = JSON.parse(swapResult);
+    const swapData = await swapResponse.json() as Record<string, unknown>;
 
     if (swapData.error) {
       log.error("Jupiter swap API error", { error: swapData.error });
@@ -400,7 +414,7 @@ export async function executeSwap(quoteResponse: object): Promise<string | null>
     }
 
     // Deserialize and sign the transaction
-    const swapTransactionBuf = Buffer.from(swapData.swapTransaction, "base64");
+    const swapTransactionBuf = Buffer.from(swapData.swapTransaction as string, "base64");
     const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
     transaction.sign([keypair]);

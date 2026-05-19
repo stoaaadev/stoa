@@ -1,17 +1,17 @@
 {
   "name": "stoa",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Solana-native multi-agent swarm framework with self-healing, quality scoring, and production-grade orchestration",
   "agents": [
     {
       "name": "scout",
       "role": "Onchain intelligence",
-      "skills": ["scan-tokens", "morning-brief", "whale-tracking", "liquidity-scan", "news-sentiment", "onchain-monitor", "social-signal"]
+      "skills": ["scan-tokens", "morning-brief"]
     },
     {
       "name": "analyst",
       "role": "Signal processing",
-      "skills": ["analyze-signal", "correlation-analysis", "portfolio-rebalance", "risk-scoring", "narrative-tracker"]
+      "skills": ["analyze-signal", "trend-analysis", "market-structure"]
     },
     {
       "name": "executor",
@@ -21,24 +21,41 @@
     {
       "name": "guardian",
       "role": "Risk management & swarm health",
-      "skills": ["check-risk", "health-check", "self-repair", "self-improve", "cost-report", "anomaly-detection", "backup-state"]
+      "skills": ["check-risk", "health-check", "self-repair", "self-improve"]
+    },
+    {
+      "name": "researcher",
+      "role": "Deep research",
+      "skills": ["arxiv-scan", "paper-summarize", "competitor-watch", "github-trending", "protocol-deep-dive", "exploit-postmortem", "security-audit-watch"]
+    },
+    {
+      "name": "writer",
+      "role": "Content & publishing",
+      "skills": ["daily-digest", "weekly-recap", "changelog-generate", "editorial-review", "write-newsletter", "tweet-compose"]
+    },
+    {
+      "name": "ops",
+      "role": "DevOps",
+      "skills": ["repo-health", "pr-review", "dependency-audit", "ci-monitor", "security-scan"]
     }
   ],
   "skills": [
-    "scan-tokens", "morning-brief", "whale-tracking", "liquidity-scan",
-    "news-sentiment", "onchain-monitor", "social-signal",
-    "analyze-signal", "correlation-analysis", "portfolio-rebalance",
-    "risk-scoring", "narrative-tracker",
+    "scan-tokens", "morning-brief",
+    "analyze-signal", "trend-analysis", "market-structure",
     "execute-trade", "dca-execute", "stop-loss-execute",
     "check-risk", "health-check", "self-repair", "self-improve",
-    "cost-report", "anomaly-detection", "backup-state"
+    "arxiv-scan", "paper-summarize", "competitor-watch", "github-trending",
+    "protocol-deep-dive", "exploit-postmortem", "security-audit-watch",
+    "daily-digest", "weekly-recap", "changelog-generate", "editorial-review",
+    "write-newsletter", "tweet-compose",
+    "repo-health", "pr-review", "dependency-audit", "ci-monitor", "security-scan"
   ],
-  "chains": ["full-scan", "morning-pipeline", "weekly-maintenance"],
+  "chains": ["full-scan", "morning-pipeline", "research-pipeline", "weekly-maintenance", "security-audit"],
   "features": [
     "self-healing", "quality-scoring", "skill-chaining", "deduplication",
     "rate-limiting", "output-validation", "token-tracking", "structured-logging",
     "security-scanning", "wallet-tracking", "webhook-triggers", "retry-backoff",
-    "multi-llm-fallback", "mcp-server", "parallel-execution"
+    "atomic-file-locking", "parallel-execution"
   ],
   "chain": "solana",
   "runtime": "github-actions",

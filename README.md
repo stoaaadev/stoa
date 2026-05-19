@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Multi-agent swarm framework for autonomous operations.</b><br>
-  Seven agents. 122 skills. One shared mesh. Zero infrastructure.
+  Seven agents. 30 skills. One shared mesh. Zero infrastructure.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/demo.svg" alt="stoa demo" width="720">
+  <img src="assets/demo.gif" alt="stoa test pipeline" width="620">
 </p>
 
 ---
@@ -42,8 +42,8 @@ writer ←── insight ──────── protects everything
 | | Count | Description |
 |---|---|---|
 | **Agents** | 7 | scout, analyst, executor, guardian, researcher, writer, ops |
-| **Skills** | 122 | Trading, research, content, social, devops, data, automation |
-| **Chains** | 6 | Multi-step pipelines with dependency graphs |
+| **Skills** | 30 | Trading, research, content, devops |
+| **Chains** | 5 | Multi-step pipelines with dependency graphs |
 | **Dashboard** | 1 | Next.js operations UI with real-time swarm monitoring |
 | **Messaging** | 3 | Telegram, Discord, Slack inbound + outbound |
 | **LLM Providers** | 3 | Claude, OpenAI, Gemini with automatic failover |
@@ -111,61 +111,56 @@ cd dashboard && npm install && npm run dev
 
 ### Scout — the eyes
 
-Monitors Solana and the wider market for signals: token price movements, volume spikes, new pools, whale transactions, liquidity changes, news sentiment, social signals, bridge activity, airdrops. Runs every 30 minutes.
+Monitors Solana for actionable signals: token price movements, volume spikes, new pools, whale transactions. Runs every 30 minutes.
 
-**9 skills:** `scan-tokens` `morning-brief` `whale-tracking` `liquidity-scan` `news-sentiment` `onchain-monitor` `social-signal` `bridge-monitor` `airdrop-tracker`
+**Skills:** `scan-tokens` `morning-brief`
 
 ### Analyst — the brain
 
-Evaluates signals from Scout and Researcher. Scores opportunities across multiple dimensions. Runs correlation analysis, portfolio models, market structure analysis, trend forecasting. Only signals above the confidence threshold generate trade theses.
+Evaluates signals from Scout and Researcher. Scores opportunities across multiple dimensions. Only signals above the confidence threshold generate trade theses.
 
-**10 skills:** `analyze-signal` `correlation-analysis` `portfolio-rebalance` `risk-scoring` `narrative-tracker` `market-structure` `tokenomics-analysis` `trend-analysis` `trend-forecast` `benchmark-compare`
+**Skills:** `analyze-signal` `trend-analysis` `market-structure`
 
 ### Executor — the hands
 
 Receives validated trade-signals from Analyst and executes via Jupiter. Supports single trades, DCA, and stop-loss triggers. Every transaction goes through preflight/postflight verification. Purely reactive — no cron schedule.
 
-**3 skills:** `execute-trade` `dca-execute` `stop-loss-execute`
+**Skills:** `execute-trade` `dca-execute` `stop-loss-execute`
 
 ### Guardian — the immune system
 
-Monitors all open positions, enforces stop-losses, checks drawdown, flags anomalies, tracks errors, monitors SLAs. Has **veto power** — a single `halt` message freezes the entire swarm. Runs self-healing routines automatically.
+Monitors all open positions, enforces stop-losses, checks drawdown, flags anomalies. Has **veto power** — a single `halt` message freezes the entire swarm. Runs self-healing routines automatically.
 
-**10 skills:** `check-risk` `health-check` `self-repair` `self-improve` `cost-report` `anomaly-detection` `backup-state` `anomaly-report` `error-tracking` `sla-monitor`
+**Skills:** `check-risk` `health-check` `self-repair` `self-improve`
 
 ### Researcher — the scholar
 
-Conducts deep research across academic papers, protocol docs, governance proposals, competitive landscapes, funding rounds, developer activity. Synthesizes findings into structured intelligence for other agents.
+Conducts deep research across academic papers, protocol docs, competitive landscapes. Synthesizes findings into structured intelligence for other agents.
 
-**15 skills:** `arxiv-scan` `paper-summarize` `competitor-watch` `github-trending` `ecosystem-map` `protocol-deep-dive` `governance-tracker` `regulatory-scan` `tech-radar` `patent-scan` `funding-tracker` `developer-activity` `community-pulse` `security-audit-watch` `exploit-postmortem`
+**Skills:** `arxiv-scan` `paper-summarize` `competitor-watch` `github-trending` `protocol-deep-dive` `exploit-postmortem` `security-audit-watch`
 
 ### Writer — the voice
 
-Creates and publishes content across platforms. Articles, newsletters, social threads, blog posts, changelogs, tutorials. Fact-checks before publishing. Adapts tone to platform.
+Creates digests, newsletters, changelogs, and social posts. Fact-checks before publishing.
 
-**20 skills:** `write-article` `write-thread` `write-newsletter` `daily-digest` `weekly-recap` `changelog-generate` `blog-draft` `tweet-compose` `discord-post` `telegram-broadcast` `content-calendar` `seo-optimize` `repurpose-content` `fact-check` `editorial-review` `press-release` `case-study` `tutorial-write` `comparison-post` `opinion-piece`
+**Skills:** `daily-digest` `weekly-recap` `changelog-generate` `editorial-review` `write-newsletter` `tweet-compose`
 
 ### Ops — the engineer
 
-Manages repository health, CI pipelines, dependencies, security scanning, issue triage, PR reviews, automation workflows. Keeps the infrastructure running.
+Manages repository health, CI pipelines, dependencies, security scanning, and PR reviews.
 
-**28 skills:** `repo-health` `issue-triage` `pr-review` `dependency-audit` `ci-monitor` `changelog-update` `docs-sync` `code-quality` `test-coverage` `security-scan` `performance-monitor` `deployment-status` `infra-cost` `api-health` `auto-label` `auto-assign` `reminder-send` `report-schedule` `task-prioritize` `workflow-optimize` `notification-digest` `escalation-manage` `capacity-plan` `resource-optimize` `batch-process` `queue-manage` `cleanup-routine` `sync-external`
-
-Plus 27 additional skills across data analytics, social monitoring, and more: `data-collect` `metric-dashboard` `kpi-track` `funnel-analyze` `cohort-analysis` `ab-test-report` `user-behavior` `retention-analysis` `revenue-track` `growth-forecast` `churn-predict` `data-quality` `social-listen` `sentiment-scan` `influencer-track` `community-growth` `engagement-report` `mention-monitor` `hashtag-track` `competitor-social` `audience-analyze` `viral-detect` `social-respond` `poll-create` `ama-prep` `community-health` `feedback-collect`
+**Skills:** `repo-health` `pr-review` `dependency-audit` `ci-monitor` `security-scan`
 
 ## Skills
 
 Skills are markdown prompts. No code. Drop a `SKILL.md` in `skills/your-skill/` and reference it in an agent's config.
 
 ```
-skills/                              # 122 skills across 7 domains
-├── Trading (22)                     # scan-tokens, execute-trade, check-risk, ...
-├── Research & Intelligence (20)     # arxiv-scan, github-trending, exploit-postmortem, ...
-├── Content & Publishing (20)        # write-article, daily-digest, tweet-compose, ...
-├── Social & Community (15)          # social-listen, influencer-track, viral-detect, ...
-├── DevOps & Repo Management (15)    # repo-health, pr-review, security-scan, ...
-├── Data & Analytics (15)            # kpi-track, cohort-analysis, growth-forecast, ...
-└── Automation & Workflow (15)       # auto-label, workflow-optimize, cleanup-routine, ...
+skills/
+├── Trading        # scan-tokens, morning-brief, analyze-signal, execute-trade, check-risk, ...
+├── Research       # arxiv-scan, paper-summarize, github-trending, competitor-watch, ...
+├── Content        # daily-digest, weekly-recap, write-newsletter, tweet-compose, ...
+└── DevOps         # repo-health, pr-review, dependency-audit, ci-monitor, security-scan
 ```
 
 ### Adding a skill
@@ -226,7 +221,7 @@ chains:
     schedule: "0 10 * * 1,4"
 ```
 
-Six built-in chains: `full-scan`, `morning-pipeline`, `research-pipeline`, `weekly-maintenance`, `social-pipeline`, `security-audit`.
+Five built-in chains: `full-scan`, `morning-pipeline`, `research-pipeline`, `weekly-maintenance`, `security-audit`.
 
 ## Dashboard
 
@@ -336,14 +331,11 @@ stoa/
 │   ├── writer/AGENT.md
 │   └── ops/AGENT.md
 │
-├── skills/                     # 122 skill prompts
-│   ├── (22 trading skills)
-│   ├── (20 research skills)
-│   ├── (20 content skills)
-│   ├── (15 social skills)
-│   ├── (15 devops skills)
-│   ├── (15 data skills)
-│   └── (15 automation skills)
+├── skills/                     # 30 skill prompts
+│   ├── scan-tokens, morning-brief, analyze-signal, ...
+│   ├── execute-trade, dca-execute, stop-loss-execute
+│   ├── check-risk, health-check, self-repair, self-improve
+│   └── arxiv-scan, repo-health, daily-digest, ...
 │
 ├── src/                        # TypeScript runtime
 │   ├── index.ts                # CLI entry

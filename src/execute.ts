@@ -150,8 +150,7 @@ function scoreOutput(result: ExecutionResult): number {
 }
 
 function gitCommit(message: string): void {
-  // Use heredoc-style commit to prevent shell injection
-  const safeMessage = message.replace(/["\$`\\!]/g, "");
+  const { execFileSync } = require("child_process");
 
   try {
     execSync("git add memory/ 2>/dev/null || true", { stdio: "pipe" });
@@ -164,13 +163,15 @@ function gitCommit(message: string): void {
       // Staged changes exist, proceed
     }
 
-    execSync(`git commit -m '${safeMessage}'`, { stdio: "pipe" });
+    // Use execFileSync with array args to prevent shell injection entirely.
+    // No shell interpretation — message is passed as a direct argv element.
+    execFileSync("git", ["commit", "-m", message], { stdio: "pipe" });
 
     // Push with retry (5 attempts with exponential backoff)
     for (let attempt = 1; attempt <= 5; attempt++) {
       try {
         execSync("git pull --rebase origin main 2>/dev/null || true", { stdio: "pipe" });
-        execSync("git push", { stdio: "pipe" });
+        execFileSync("git", ["push"], { stdio: "pipe" });
         log.info("Git push succeeded", { attempt });
         break;
       } catch (e) {
@@ -180,7 +181,9 @@ function gitCommit(message: string): void {
           log.error("Git push failed after 5 attempts");
         } else {
           // Exponential backoff: 2s, 4s, 8s, 16s
-          execSync(`sleep ${Math.pow(2, attempt)}`, { stdio: "pipe" });
+          const delay = Math.pow(2, attempt) * 1000;
+          const waitUntil = Date.now() + delay;
+          while (Date.now() < waitUntil) { /* spin */ }
         }
       }
     }

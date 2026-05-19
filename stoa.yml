@@ -17,8 +17,8 @@ defaults:
   model: claude-sonnet-4-20250514
   chain: solana
   rpc: ${SOLANA_RPC_URL}
-  gateway: direct                    # direct | bankr (for cost optimization)
-  commit: true                       # auto-commit memory/mesh changes
+  gateway: direct
+  commit: true
 
 notifications:
   telegram:
@@ -69,13 +69,6 @@ agents:
     skills:
       - scan-tokens
       - morning-brief
-      - whale-tracking
-      - liquidity-scan
-      - news-sentiment
-      - onchain-monitor
-      - social-signal
-      - bridge-monitor
-      - airdrop-tracker
     schedule: "*/30 * * * *"
     var:
       watch_tokens: ["SOL", "JUP", "JTO", "PYTH", "RAY", "DRIFT"]
@@ -84,18 +77,11 @@ agents:
 
   # ── Signal Processing ──
   analyst:
-    role: "Signal processing — evaluates findings, scores opportunities, generates trade theses and research insights"
+    role: "Signal processing — evaluates findings, scores opportunities, generates trade theses"
     skills:
       - analyze-signal
-      - correlation-analysis
-      - portfolio-rebalance
-      - risk-scoring
-      - narrative-tracker
-      - market-structure
-      - tokenomics-analysis
       - trend-analysis
-      - trend-forecast
-      - benchmark-compare
+      - market-structure
     schedule: "0 * * * *"
     triggers:
       - on: mesh
@@ -139,12 +125,6 @@ agents:
       - health-check
       - self-repair
       - self-improve
-      - cost-report
-      - anomaly-detection
-      - backup-state
-      - anomaly-report
-      - error-tracking
-      - sla-monitor
     schedule: "*/15 * * * *"
     triggers:
       - on: mesh
@@ -157,24 +137,16 @@ agents:
 
   # ── Deep Research ──
   researcher:
-    role: "Deep research — papers, protocols, governance, competitive intelligence, exploit analysis"
+    role: "Deep research — papers, protocols, competitive intelligence, exploit analysis"
     skills:
       - arxiv-scan
       - paper-summarize
       - competitor-watch
       - github-trending
-      - ecosystem-map
       - protocol-deep-dive
-      - governance-tracker
-      - regulatory-scan
-      - tech-radar
-      - patent-scan
-      - funding-tracker
-      - developer-activity
-      - community-pulse
-      - security-audit-watch
       - exploit-postmortem
-    schedule: "0 */4 * * *"           # every 4 hours
+      - security-audit-watch
+    schedule: "0 */4 * * *"
     triggers:
       - on: mesh
         from: analyst
@@ -186,29 +158,15 @@ agents:
 
   # ── Content & Publishing ──
   writer:
-    role: "Content creation — articles, newsletters, social posts, documentation, reports"
+    role: "Content creation — digests, newsletters, social posts, changelogs"
     skills:
-      - write-article
-      - write-thread
-      - write-newsletter
       - daily-digest
       - weekly-recap
       - changelog-generate
-      - blog-draft
-      - tweet-compose
-      - discord-post
-      - telegram-broadcast
-      - content-calendar
-      - seo-optimize
-      - repurpose-content
-      - fact-check
       - editorial-review
-      - press-release
-      - case-study
-      - tutorial-write
-      - comparison-post
-      - opinion-piece
-    schedule: "0 8 * * *"            # daily at 8am
+      - write-newsletter
+      - tweet-compose
+    schedule: "0 8 * * *"
     triggers:
       - on: mesh
         from: researcher
@@ -221,39 +179,16 @@ agents:
       max_article_words: 2000
       platforms: ["blog", "twitter", "telegram", "discord"]
 
-  # ── DevOps & Automation ──
+  # ── DevOps ──
   ops:
-    role: "DevOps & automation — repo health, CI monitoring, dependency audits, infrastructure management"
+    role: "DevOps — repo health, CI monitoring, dependency audits, security scanning"
     skills:
       - repo-health
-      - issue-triage
       - pr-review
       - dependency-audit
       - ci-monitor
-      - changelog-update
-      - docs-sync
-      - code-quality
-      - test-coverage
       - security-scan
-      - performance-monitor
-      - deployment-status
-      - infra-cost
-      - api-health
-      - auto-label
-      - auto-assign
-      - reminder-send
-      - report-schedule
-      - task-prioritize
-      - workflow-optimize
-      - notification-digest
-      - escalation-manage
-      - capacity-plan
-      - resource-optimize
-      - batch-process
-      - queue-manage
-      - cleanup-routine
-      - sync-external
-    schedule: "0 */2 * * *"          # every 2 hours
+    schedule: "0 */2 * * *"
     var:
       repos: ["stoaaadev/stoa"]
       alert_on_ci_failure: true
@@ -322,7 +257,7 @@ chains:
         depends_on: [write]
     on_failure: continue
     max_retries: 0
-    schedule: "0 10 * * 1,4"         # Monday and Thursday at 10am
+    schedule: "0 10 * * 1,4"
 
   weekly-maintenance:
     name: "Weekly Self-Improvement Cycle"
@@ -330,9 +265,6 @@ chains:
       health:
         agent: guardian
         skill: health-check
-      cost:
-        agent: guardian
-        skill: cost-report
       repo:
         agent: ops
         skill: repo-health
@@ -342,7 +274,7 @@ chains:
       improve:
         agent: guardian
         skill: self-improve
-        depends_on: [health, cost, repo]
+        depends_on: [health, repo]
       changelog:
         agent: writer
         skill: changelog-generate
@@ -350,24 +282,6 @@ chains:
     on_failure: continue
     max_retries: 0
     schedule: "0 0 * * 0"
-
-  social-pipeline:
-    name: "Social Listening + Content Response"
-    steps:
-      listen:
-        agent: scout
-        skill: social-signal
-      sentiment:
-        agent: analyst
-        skill: narrative-tracker
-        depends_on: [listen]
-      respond:
-        agent: writer
-        skill: tweet-compose
-        depends_on: [sentiment]
-    on_failure: continue
-    max_retries: 0
-    schedule: "0 */6 * * *"
 
   security-audit:
     name: "Security Monitoring Pipeline"
@@ -381,10 +295,6 @@ chains:
       repo-scan:
         agent: ops
         skill: security-scan
-      report:
-        agent: guardian
-        skill: anomaly-report
-        depends_on: [scan-exploits, scan-audits, repo-scan]
     on_failure: continue
     max_retries: 0
     schedule: "0 6 * * *"
@@ -406,4 +316,3 @@ rules:
   - "Wallet balance must be verified before any trade execution"
   - "Researcher must cite sources with URLs — no unsourced claims"
   - "Writer must fact-check before publishing to external platforms"
-  - "Ops may not deploy to production without guardian approval"

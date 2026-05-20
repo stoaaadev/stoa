@@ -16,7 +16,7 @@
   <a href="https://solana.com"><img src="https://img.shields.io/badge/chain-Solana-9945FF?style=flat-square&logo=solana&logoColor=white" alt="Solana"></a>
 </p>
 
-CA:TBA
+CA:ELHzHJ1SjD7y5NxgSFncyHBgkjp1kVQj9HbACc8Tpump
 
 <p align="center">
   <img src="assets/demo.gif" alt="stoa test pipeline" width="620">
